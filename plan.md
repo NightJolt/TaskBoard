@@ -13,52 +13,66 @@ Task management platform. Admin invites users via invite codes. Users create pro
 | Search | Elasticsearch |
 | Message Broker | RabbitMQ |
 | Real-time | WebSockets (Socket.io / NestJS Gateway) |
-| Auth | JWT (access + refresh tokens) |
+| Auth | JWT (access token, refresh deferred) |
+
+## Backend Patterns
+- Controllers split by access level: `*-public`, `*-authed`, `*-admin` (same route prefix)
+- Services split the same way, plus `*-system` for shared logic
+- `@Authenticated()` decorator: no decorator = public, empty = any authed, with role = role-specific
+- `RolesGuardian` — combined JWT + role guard, applied per-controller (not global)
+- Config via `@nestjs/config` + Joi validation in AppModule
+- Schema types: `UserDocument` + `UserModel` declared after class, use `import type` for models in DI
+- Request DTOs: `{module}.requests.ts` with `*Req` suffix, all in one file
+- Response DTOs: `{module}.responses.ts` with `*Res` suffix, whitelist via `@Exclude()`/`@Expose()`
+- Services receive full `UserDocument`, use `user.id` not `user._id.toString()`
+- `.env` committed directly (demo project)
 
 ## Backend Modules
 
-### 1. Config
-- Centralized env configuration with validation (`@nestjs/config` + Joi)
-- Connection configs for MongoDB, Redis, Elasticsearch, RabbitMQ
+### 1. Auth ✅
+- JWT access token (refresh + logout deferred until Redis)
+- Login, register (with invite code)
+- Admin generates/lists invite codes
+- `@Authenticated` decorator + `RolesGuardian` guard
+- Split: 3 controllers (public, authed, admin) + 3 services (system, public, admin)
 
-### 2. Auth
-- JWT-based auth (access + refresh tokens)
-- Login, register (with invite code), logout
-- Token blacklisting via Redis
-- Guards: `JwtAuthGuard`, `RolesGuard`
+### 2. Users ✅
+- User schema: email, password (bcrypt pre-save hook), name, role (admin/user)
+- Invite code schema: code, createdBy, usedBy, expiresAt, isUsed
+- Admin seeded from env vars on first boot
 
-### 3. Users
-- User schema: email, password (hashed), name, role (admin/user)
-- Admin: generate invite codes, list users
-- Invite code schema: code, createdBy, usedBy, expiresAt
-
-### 4. Projects
+### 3. Projects
 - Project schema: name, description, owner, members[]
 - CRUD operations
 - Member management (add/remove members)
 - Only members can access project resources
 
-### 5. Tasks
+### 4. Tasks
 - Task schema: title, status (Todo/InProgress/Done), deadline, priority (Low/Medium/High), assignee, project, createdBy
 - CRUD within a project context
 - Assign/reassign to project members
 - Status transitions
 
-### 6. Search
+### 5. Search
 - Elasticsearch index for tasks
 - Full-text search by title
 - Filter by status, priority, assignee, project
 - Sync from MongoDB via RabbitMQ events
 
-### 7. Notifications
+### 6. Notifications
 - Consumes RabbitMQ events (task.assigned, task.updated, member.added)
 - Stores in-app notifications
 - Pushes to connected clients via WebSockets
 
-### 8. Gateway (WebSockets)
+### 7. Gateway (WebSockets)
 - NestJS Gateway with Socket.io
 - Real-time events: task created/updated/deleted, notifications
 - Room-based: users subscribe to project rooms
+
+### 8. Redis (deferred)
+- JWT token blacklisting (logout)
+- Refresh token rotation
+- Caching, rate limiting
 
 ## Frontend Structure
 
@@ -85,8 +99,8 @@ Entire stack ships with Docker.
 - Service containers: MongoDB, Redis, Elasticsearch, RabbitMQ
 
 ## Build Order
-1. Docker Compose (infrastructure services)
-2. Backend: config → auth → users → projects → tasks → search → notifications → gateway
+1. ~~Docker Compose + Config + Auth + Users~~ ✅
+2. Backend: projects → tasks → search → notifications → gateway → redis
 3. Frontend: core/auth → projects → tasks/kanban → search → real-time → admin
 4. Dockerfiles for backend & frontend
 5. Integration testing & polish
