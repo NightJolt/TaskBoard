@@ -1,4 +1,12 @@
-import { Exclude, Expose, Transform } from 'class-transformer';
+import { Exclude, Expose, Transform, Type } from 'class-transformer';
+import { UserRes } from '../../users/dto/users.responses';
+
+export class AuthRes {
+  accessToken: string;
+
+  @Type(() => UserRes)
+  user: UserRes;
+}
 
 @Exclude()
 export class InviteCodeRes {
@@ -16,7 +24,8 @@ export class InviteCodeRes {
   isUsed: boolean;
 
   @Expose()
-  usedBy: any;
+  @Type(() => UserRes)
+  usedBy: UserRes | null;
 
   @Expose()
   createdAt: Date;

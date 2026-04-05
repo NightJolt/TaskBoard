@@ -16,15 +16,18 @@ Task management platform. Admin invites users via invite codes. Users create pro
 | Auth | JWT (access token, refresh deferred) |
 
 ## Backend Patterns
-- Controllers split by access level: `*-public`, `*-authed`, `*-admin` (same route prefix)
+- Controllers split by access level: `*-public`, `*-authed`, `*-member`, `*-owner`, `*-admin`
 - Services split the same way, plus `*-system` for shared logic
 - `@Authenticated()` decorator: no decorator = public, empty = any authed, with role = role-specific
+- `@ProjectMembership()` decorator: verifies project membership, loads project onto request
 - `RolesGuardian` — combined JWT + role guard, applied per-controller (not global)
-- Config via `@nestjs/config` + Joi validation in AppModule
-- Schema types: `UserDocument` + `UserModel` declared after class, use `import type` for models in DI
-- Request DTOs: `{module}.requests.ts` with `*Req` suffix, all in one file
-- Response DTOs: `{module}.responses.ts` with `*Res` suffix, whitelist via `@Exclude()`/`@Expose()`
-- Services receive full `UserDocument`, use `user.id` not `user._id.toString()`
+- `@Authenticated` must be closest to `@Controller` (bottom decorator) — auth runs before other guards
+- All decorators class-level only, never on methods
+- Never use `any` — always proper TypeScript types
+- Schema types: `*Document` + `*Model` declared after class, use `import type` for models in DI
+- Request DTOs in `dto/*.requests.ts` with `*Req` suffix
+- Response DTOs in `dto/*.responses.ts` with `*Res` suffix, whitelist via `@Exclude()`/`@Expose()`
+- Services receive full documents, use `.id` not `._id.toString()`
 - `.env` committed directly (demo project)
 
 ## Backend Modules
@@ -41,11 +44,12 @@ Task management platform. Admin invites users via invite codes. Users create pro
 - Invite code schema: code, createdBy, usedBy, expiresAt, isUsed
 - Admin seeded from env vars on first boot
 
-### 3. Projects
-- Project schema: name, description, owner, members[]
-- CRUD operations
-- Member management (add/remove members)
-- Only members can access project resources
+### 3. Projects ✅
+- Project schema: name, description, owner (ref User)
+- ProjectMember schema (separate collection): project, user, role (owner/member). Compound unique index.
+- `@ProjectMembership()` guard + `@CurrentProject()` decorator
+- 3 controllers: authed (create, list), member (get, update), owner (delete, add/remove members)
+- CRUD + member management, membership-gated access
 
 ### 4. Tasks
 - Task schema: title, status (Todo/InProgress/Done), deadline, priority (Low/Medium/High), assignee, project, createdBy
@@ -100,7 +104,8 @@ Entire stack ships with Docker.
 
 ## Build Order
 1. ~~Docker Compose + Config + Auth + Users~~ ✅
-2. Backend: projects → tasks → search → notifications → gateway → redis
+2. ~~Projects~~ ✅
+3. Backend: tasks → search → notifications → gateway → redis
 3. Frontend: core/auth → projects → tasks/kanban → search → real-time → admin
 4. Dockerfiles for backend & frontend
 5. Integration testing & polish

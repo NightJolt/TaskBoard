@@ -11,6 +11,7 @@ import { InviteCode } from '../../users/schemas/invite-code.schema';
 import type { InviteCodeModel } from '../../users/schemas/invite-code.schema';
 import { AuthSystemService } from './auth-system.service';
 import { LoginReq, RegisterReq } from '../dto/auth.requests';
+import { AuthRes } from '../dto/auth.responses';
 
 @Injectable()
 export class AuthPublicService {
@@ -21,12 +22,7 @@ export class AuthPublicService {
     private inviteCodeModel: InviteCodeModel,
   ) {}
 
-  async register(dto: RegisterReq) {
-    const invite = await this.inviteCodeModel.findOne({ code: dto.inviteCode });
-    if (!invite || invite.isUsed || invite.expiresAt < new Date()) {
-      throw new BadRequestException('Invalid or expired invite code');
-    }
-
+  async register(dto: RegisterReq): Promise<AuthRes> {
     const existing = await this.usersService.findByEmail(dto.email);
     if (existing) {
       throw new ConflictException('Email already registered');
@@ -38,9 +34,22 @@ export class AuthPublicService {
       name: dto.name,
     });
 
-    invite.isUsed = true;
-    invite.usedBy = user._id;
-    await invite.save();
+    const invite = await this.inviteCodeModel.findOneAndUpdate(
+      {
+        code: dto.inviteCode,
+        isUsed: false,
+        expiresAt: { $gt: new Date() },
+      },
+      {
+        isUsed: true,
+        usedBy: user.id,
+      },
+    );
+
+    if (!invite) {
+      await user.deleteOne();
+      throw new BadRequestException('Invalid or expired invite code');
+    }
 
     return {
       accessToken: this.authSystemService.generateToken(user),
@@ -48,7 +57,7 @@ export class AuthPublicService {
     };
   }
 
-  async login(dto: LoginReq) {
+  async login(dto: LoginReq): Promise<AuthRes> {
     const user = await this.usersService.findByEmail(dto.email);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');

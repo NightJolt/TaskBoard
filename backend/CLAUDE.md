@@ -10,17 +10,26 @@ Modular monolith built with NestJS 11.
 - **Elasticsearch** — full-text search across tasks (synced from MongoDB via RabbitMQ events)
 - **RabbitMQ** — async event bus for decoupling modules (task assignment notifications, search index sync, activity logging)
 
+## Strict Rules
+- **Never use `any`** — always use proper TypeScript types. Use spread to build new objects instead of casting.
+- **Decorators are class-level only** — never on individual methods
+- **`@Authenticated` must be closest to `@Controller`** — decorators apply bottom-to-top, auth must run before other guards
+
 ## Patterns
 
 ### Controllers split by access level
 Each feature has up to 3 controllers sharing the same route prefix:
 - `*-public.controller.ts` — no decorator, no auth
 - `*-authed.controller.ts` — `@Authenticated()`, any valid JWT
+- `*-member.controller.ts` — `@ProjectMembership()` + `@Authenticated()`, project members
+- `*-owner.controller.ts` — `@ProjectMembership(ProjectAccess.Owner)` + `@Authenticated()`, project owners
 - `*-admin.controller.ts` — `@Authenticated('admin')`, admin only
 
 ### Services split the same way
 - `*-system.service.ts` — shared utilities used by other services
 - `*-public.service.ts` — public endpoint logic
+- `*-authed.service.ts` — authenticated user logic
+- `*-owner.service.ts` — owner-only logic
 - `*-admin.service.ts` — admin endpoint logic
 
 ### `@Authenticated()` decorator
@@ -30,6 +39,16 @@ Single decorator that combines `SetMetadata` + `UseGuards(RolesGuardian)`:
 - `@Authenticated('admin')` = admin only
 - `@Authenticated('user', 'admin')` = multiple roles
 - Applied at **class level only** (not per-method)
+
+### `@ProjectMembership()` decorator
+Combines `SetMetadata` + `UseGuards(ProjectMembershipGuard)`:
+- `@ProjectMembership()` = any project member
+- `@ProjectMembership(ProjectAccess.Owner)` = project owner only
+- Guard loads project from `:id` param, verifies membership, attaches to `request.project`
+- Applied at **class level only**
+
+### `@CurrentProject()` decorator
+Extracts `request.project` (set by `ProjectMembershipGuard`). Same pattern as `@CurrentUser()`.
 
 ### `RolesGuardian`
 Single guard extending `AuthGuard('jwt')` that handles both JWT validation and role checking. Not registered globally — attached per-controller via `@Authenticated()`.
@@ -54,14 +73,15 @@ Use `UserModel` instead of `Model<UserDocument>` when injecting. Use `import typ
 - Use `plainToInstance()` to transform
 
 ### Service method signatures
-- Pass full `UserDocument` instead of just `user.id`
+- Pass full document (e.g. `UserDocument`, `ProjectDocument`) instead of just IDs
 - Use `user.id` (Mongoose virtual) instead of `user._id.toString()`
-- Use proper types (`UserDocument`) instead of `any`
+- Use proper types — never `any`
 
 ### Swagger
-- Available at `/docs`
+- Available at `/docs`, token persists across reloads (`persistAuthorization`)
 - Plugin configured in `nest-cli.json` to scan `*.requests.ts` and `*.responses.ts`
 - Auto-generates schemas from DTOs
+- `@ApiBearerAuth()` bundled in `@Authenticated()`, `@ApiParam('id')` bundled in `@ProjectMembership()`
 
 ### Environment
 - `.env` committed directly (demo project, no secrets)
@@ -70,27 +90,40 @@ Use `UserModel` instead of `Model<UserDocument>` when injecting. Use `import typ
 ## Module Structure
 ```
 src/
-├── common/decorators/     # @Authenticated, @CurrentUser, barrel index
+├── common/decorators/       # @Authenticated, @CurrentUser, @CurrentProject,
+│                            # @ProjectMembership, barrel index
 ├── users/
-│   ├── schemas/           # user.schema.ts, invite-code.schema.ts
-│   ├── dto/               # users.responses.ts (UserRes)
-│   ├── users.service.ts   # CRUD + admin seeding
+│   ├── schemas/             # user.schema.ts, invite-code.schema.ts
+│   ├── dto/                 # users.responses.ts (UserRes)
+│   ├── users.service.ts     # CRUD + admin seeding
 │   └── users.module.ts
 ├── auth/
-│   ├── guards/            # roles.guardian.ts
-│   ├── strategies/        # jwt.strategy.ts
-│   ├── interfaces/        # jwt-payload.interface.ts
-│   ├── dto/               # auth.requests.ts, auth.responses.ts
-│   ├── services/          # auth-system, auth-public, auth-admin
-│   ├── controllers/       # auth-public, auth-authed, auth-admin
+│   ├── guards/              # roles.guardian.ts
+│   ├── strategies/          # jwt.strategy.ts
+│   ├── interfaces/          # jwt-payload.interface.ts
+│   ├── dto/                 # auth.requests.ts, auth.responses.ts
+│   ├── services/            # auth-system, auth-public, auth-admin
+│   ├── controllers/         # auth-public, auth-authed, auth-admin
 │   └── auth.module.ts
-├── projects/              # TBD
-├── tasks/                 # TBD
-├── search/                # TBD
-├── notifications/         # TBD
+├── projects/
+│   ├── schemas/             # project.schema.ts, project-member.schema.ts
+│   ├── guards/              # project-membership.guard.ts
+│   ├── dto/                 # projects.requests.ts, projects.responses.ts
+│   ├── services/            # projects-authed, projects-owner
+│   ├── controllers/         # projects-authed, projects-member, projects-owner
+│   └── projects.module.ts
+├── tasks/                   # TBD
+├── search/                  # TBD
+├── notifications/           # TBD
 ├── app.module.ts
 └── main.ts
 ```
+
+## Data Model
+- **User** — email, password (bcrypt), name, role (admin/user)
+- **InviteCode** — code, createdBy (ref User), usedBy (ref User), expiresAt, isUsed
+- **Project** — name, description, owner (ref User)
+- **ProjectMember** — project (ref Project), user (ref User), role (owner/member). Separate collection for scalability. Compound unique index on (project, user).
 
 ## Auth & Invite Flow
 - JWT-based authentication (access token only, refresh deferred)
