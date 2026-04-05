@@ -47,9 +47,9 @@ export const UserSchema = SchemaFactory.createForClass(User);
 Use `UserModel` instead of `Model<UserDocument>` when injecting. Use `import type` for model types in decorated constructors.
 
 ### Request/Response DTOs
-- Request DTOs: `{module}.requests.ts` with `*Req` suffix (e.g. `LoginReq`, `RegisterReq`)
-- Response DTOs: `{module}.responses.ts` with `*Res` suffix (e.g. `UserRes`)
-- All in a single file per module, no `dto/` directory
+- Live under `dto/` directory in each module
+- Request DTOs: `dto/{module}.requests.ts` with `*Req` suffix (e.g. `LoginReq`, `RegisterReq`)
+- Response DTOs: `dto/{module}.responses.ts` with `*Res` suffix (e.g. `UserRes`, `InviteCodeRes`)
 - Response DTOs use `@Exclude()` class-level + `@Expose()` per field (whitelist approach)
 - Use `plainToInstance()` to transform
 
@@ -57,6 +57,11 @@ Use `UserModel` instead of `Model<UserDocument>` when injecting. Use `import typ
 - Pass full `UserDocument` instead of just `user.id`
 - Use `user.id` (Mongoose virtual) instead of `user._id.toString()`
 - Use proper types (`UserDocument`) instead of `any`
+
+### Swagger
+- Available at `/docs`
+- Plugin configured in `nest-cli.json` to scan `*.requests.ts` and `*.responses.ts`
+- Auto-generates schemas from DTOs
 
 ### Environment
 - `.env` committed directly (demo project, no secrets)
@@ -68,14 +73,14 @@ src/
 ├── common/decorators/     # @Authenticated, @CurrentUser, barrel index
 ├── users/
 │   ├── schemas/           # user.schema.ts, invite-code.schema.ts
-│   ├── users.responses.ts # UserRes
+│   ├── dto/               # users.responses.ts (UserRes)
 │   ├── users.service.ts   # CRUD + admin seeding
 │   └── users.module.ts
 ├── auth/
 │   ├── guards/            # roles.guardian.ts
 │   ├── strategies/        # jwt.strategy.ts
 │   ├── interfaces/        # jwt-payload.interface.ts
-│   ├── auth.requests.ts   # LoginReq, RegisterReq
+│   ├── dto/               # auth.requests.ts, auth.responses.ts
 │   ├── services/          # auth-system, auth-public, auth-admin
 │   ├── controllers/       # auth-public, auth-authed, auth-admin
 │   └── auth.module.ts
