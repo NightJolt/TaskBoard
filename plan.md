@@ -51,11 +51,11 @@ Task management platform. Admin invites users via invite codes. Users create pro
 - 3 controllers: authed (create, list), member (get, update), owner (delete, add/remove members)
 - CRUD + member management, membership-gated access
 
-### 4. Tasks
-- Task schema: title, status (Todo/InProgress/Done), deadline, priority (Low/Medium/High), assignee, project, createdBy
-- CRUD within a project context
-- Assign/reassign to project members
-- Status transitions
+### 4. Tasks ✅
+- Task schema: title, status (todo/in_progress/done), deadline, priority (low/medium/high), assignee (ref User), project (ref Project), createdBy (ref User)
+- All endpoints under `/api/projects/:id/tasks`, require `@ProjectMembership()`
+- CRUD + assignee validation (must be project member)
+- Single controller (tasks-member) — all members can create/edit/delete tasks
 
 ### 5. Search
 - Elasticsearch index for tasks
@@ -105,7 +105,8 @@ Entire stack ships with Docker.
 ## Build Order
 1. ~~Docker Compose + Config + Auth + Users~~ ✅
 2. ~~Projects~~ ✅
-3. Backend: tasks → search → notifications → gateway → redis
+3. ~~Tasks~~ ✅
+4. Backend: search → notifications → gateway → redis
 3. Frontend: core/auth → projects → tasks/kanban → search → real-time → admin
 4. Dockerfiles for backend & frontend
 5. Integration testing & polish

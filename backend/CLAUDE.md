@@ -112,7 +112,12 @@ src/
 │   ├── services/            # projects-authed, projects-owner
 │   ├── controllers/         # projects-authed, projects-member, projects-owner
 │   └── projects.module.ts
-├── tasks/                   # TBD
+├── tasks/
+│   ├── schemas/             # task.schema.ts
+│   ├── dto/                 # tasks.requests.ts, tasks.responses.ts
+│   ├── services/            # tasks-member
+│   ├── controllers/         # tasks-member
+│   └── tasks.module.ts
 ├── search/                  # TBD
 ├── notifications/           # TBD
 ├── app.module.ts
@@ -122,6 +127,7 @@ src/
 ## Data Model
 - **User** — email, password (bcrypt), name, role (admin/user)
 - **InviteCode** — code, createdBy (ref User), usedBy (ref User), expiresAt, isUsed
+- **Task** — title, status (todo/in_progress/done), deadline, priority (low/medium/high), assignee (ref User), project (ref Project), createdBy (ref User). Index on (project, status). Assignee must be a project member.
 - **Project** — name, description, owner (ref User)
 - **ProjectMember** — project (ref Project), user (ref User), role (owner/member). Separate collection for scalability. Compound unique index on (project, user).
 
