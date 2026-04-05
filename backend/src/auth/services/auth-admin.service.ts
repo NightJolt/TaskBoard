@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { plainToInstance } from 'class-transformer';
 import { randomUUID } from 'crypto';
 import { InviteCode } from '../../users/schemas/invite-code.schema';
 import type { InviteCodeModel } from '../../users/schemas/invite-code.schema';
 import { UserDocument } from '../../users/schemas/user.schema';
+import { InviteCodeRes } from '../dto/auth.responses';
 
 @Injectable()
 export class AuthAdminService {
@@ -23,13 +25,15 @@ export class AuthAdminService {
       expiresAt,
     });
 
-    return { code: invite.code, expiresAt: invite.expiresAt };
+    return plainToInstance(InviteCodeRes, invite.toObject());
   }
 
   async getInviteCodes(user: UserDocument) {
-    return this.inviteCodeModel
+    const codes = await this.inviteCodeModel
       .find({ createdBy: user.id })
       .sort({ createdAt: -1 })
-      .populate('usedBy', 'email name');
+      .populate('usedBy', 'email name')
+      .lean();
+    return codes.map((code) => plainToInstance(InviteCodeRes, code));
   }
 }

@@ -10,7 +10,7 @@ import { UsersService } from '../../users/users.service';
 import { InviteCode } from '../../users/schemas/invite-code.schema';
 import type { InviteCodeModel } from '../../users/schemas/invite-code.schema';
 import { AuthSystemService } from './auth-system.service';
-import { LoginReq, RegisterReq } from '../auth.requests';
+import { LoginReq, RegisterReq } from '../dto/auth.requests';
 
 @Injectable()
 export class AuthPublicService {

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { plainToInstance } from 'class-transformer';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
-import { UserRes } from '../../users/users.responses';
+import { UserRes } from '../../users/dto/users.responses';
 import { UserDocument } from '../../users/schemas/user.schema';
 
 @Injectable()
