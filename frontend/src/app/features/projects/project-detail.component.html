@@ -1,0 +1,146 @@
+<mat-toolbar color="primary">
+  <button mat-icon-button (click)="goBack()">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+  <span>{{ projectName() }}</span>
+  <span class="spacer"></span>
+  <span class="user-name">{{ userName() }}</span>
+  <button mat-button (click)="onLogout()">Logout</button>
+</mat-toolbar>
+
+@if (loading()) {
+  <div class="loading">
+    <mat-spinner diameter="40" />
+  </div>
+} @else if (project()) {
+  <div class="action-bar">
+    <p class="description">{{ project()!.description || 'No description' }}</p>
+    <div class="actions">
+      <button mat-flat-button color="primary">
+        <mat-icon>add</mat-icon>
+        Add Task
+      </button>
+    </div>
+  </div>
+
+  <div class="main-layout">
+    <div class="kanban-area">
+      <div class="kanban-column">
+        <div class="column-header todo">
+          <span>Todo</span>
+          <span class="count">{{ todoTasks().length }}</span>
+        </div>
+        <div class="column-body">
+          @for (task of todoTasks(); track task.id) {
+            <div class="task-card" [class.high]="task.priority === 'high'" [class.low]="task.priority === 'low'">
+              <div class="task-title">{{ task.title }}</div>
+              <div class="task-meta">
+                @if (task.assignee) {
+                  <span class="assignee">
+                    <mat-icon>person</mat-icon>
+                    {{ task.assignee.name }}
+                  </span>
+                }
+                @if (task.deadline) {
+                  <span class="deadline">
+                    <mat-icon>schedule</mat-icon>
+                    {{ task.deadline | date:'MMM d' }}
+                  </span>
+                }
+              </div>
+            </div>
+          }
+          @empty {
+            <div class="empty-column">No tasks</div>
+          }
+        </div>
+      </div>
+
+      <div class="kanban-column">
+        <div class="column-header in-progress">
+          <span>In Progress</span>
+          <span class="count">{{ inProgressTasks().length }}</span>
+        </div>
+        <div class="column-body">
+          @for (task of inProgressTasks(); track task.id) {
+            <div class="task-card" [class.high]="task.priority === 'high'" [class.low]="task.priority === 'low'">
+              <div class="task-title">{{ task.title }}</div>
+              <div class="task-meta">
+                @if (task.assignee) {
+                  <span class="assignee">
+                    <mat-icon>person</mat-icon>
+                    {{ task.assignee.name }}
+                  </span>
+                }
+                @if (task.deadline) {
+                  <span class="deadline">
+                    <mat-icon>schedule</mat-icon>
+                    {{ task.deadline | date:'MMM d' }}
+                  </span>
+                }
+              </div>
+            </div>
+          }
+          @empty {
+            <div class="empty-column">No tasks</div>
+          }
+        </div>
+      </div>
+
+      <div class="kanban-column">
+        <div class="column-header done">
+          <span>Done</span>
+          <span class="count">{{ doneTasks().length }}</span>
+        </div>
+        <div class="column-body">
+          @for (task of doneTasks(); track task.id) {
+            <div class="task-card" [class.high]="task.priority === 'high'" [class.low]="task.priority === 'low'">
+              <div class="task-title">{{ task.title }}</div>
+              <div class="task-meta">
+                @if (task.assignee) {
+                  <span class="assignee">
+                    <mat-icon>person</mat-icon>
+                    {{ task.assignee.name }}
+                  </span>
+                }
+                @if (task.deadline) {
+                  <span class="deadline">
+                    <mat-icon>schedule</mat-icon>
+                    {{ task.deadline | date:'MMM d' }}
+                  </span>
+                }
+              </div>
+            </div>
+          }
+          @empty {
+            <div class="empty-column">No tasks</div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <h3>
+        <mat-icon>group</mat-icon>
+        Members ({{ project()!.members.length }})
+      </h3>
+      <div class="member-list">
+        @for (member of project()!.members; track member.id) {
+          <div class="member">
+            <mat-icon>person</mat-icon>
+            <span class="member-name">{{ member.name }}</span>
+            @if (member.role === 'owner') {
+              <mat-icon class="owner-star">star</mat-icon>
+            }
+          </div>
+        }
+      </div>
+      @if (isOwner()) {
+        <button mat-stroked-button class="invite-btn" (click)="onInviteMember()">
+          <mat-icon>person_add</mat-icon>
+          Invite Member
+        </button>
+      }
+    </div>
+  </div>
+}

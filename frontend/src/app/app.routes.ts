@@ -17,6 +17,14 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'projects/:id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/projects/project-detail.component').then(
+        (m) => m.ProjectDetailComponent,
+      ),
+  },
+  {
     path: '',
     canActivate: [authGuard],
     loadComponent: () =>
