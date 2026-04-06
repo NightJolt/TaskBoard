@@ -6,9 +6,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CdkDropList, CdkDrag, CdkDropListGroup, CdkDragDrop } from '@angular/cdk/drag-drop';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AuthService } from '../../core/auth.service';
 import { ProjectsService, Project } from '../../core/projects.service';
 import { TasksService, Task } from '../../core/tasks.service';
+import { TaskDialog, TaskDialogData } from './task.dialog';
 
 @Component({
   selector: 'app-project-detail',
@@ -22,6 +24,7 @@ import { TasksService, Task } from '../../core/tasks.service';
     CdkDropListGroup,
     CdkDropList,
     CdkDrag,
+    MatDialogModule,
   ],
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.css',
@@ -32,6 +35,7 @@ export class ProjectDetailComponent implements OnInit {
   private tasksService = inject(TasksService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private dialog = inject(MatDialog);
 
   project = signal<Project | null>(null);
   tasks = signal<Task[]>([]);
@@ -96,8 +100,31 @@ export class ProjectDetailComponent implements OnInit {
       });
   }
 
+  openCreateTask() {
+    this.openTaskDialog();
+  }
+
+  onTaskClick(task: Task) {
+    this.openTaskDialog(task);
+  }
+
   onInviteMember() {
     // TODO: open invite dialog
+  }
+
+  private openTaskDialog(task?: Task) {
+    const data: TaskDialogData = {
+      projectId: this.projectId,
+      members: this.project()?.members ?? [],
+      task,
+    };
+
+    this.dialog
+      .open(TaskDialog, { data })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) this.loadTasks();
+      });
   }
 
   private loadData() {

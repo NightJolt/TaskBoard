@@ -1,0 +1,70 @@
+<h2 mat-dialog-title>{{ isEdit() ? 'Edit Task' : 'New Task' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form">
+    <mat-form-field appearance="outline">
+      <mat-label>Title</mat-label>
+      <input matInput formControlName="title" />
+      @if (form.controls.title.hasError('required')) {
+        <mat-error>Title is required</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status">
+          <mat-option value="todo">Todo</mat-option>
+          <mat-option value="in_progress">In Progress</mat-option>
+          <mat-option value="done">Done</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Priority</mat-label>
+        <mat-select formControlName="priority">
+          <mat-option value="low">Low</mat-option>
+          <mat-option value="medium">Medium</mat-option>
+          <mat-option value="high">High</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Deadline</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="deadline" />
+      <mat-datepicker-toggle matIconSuffix [for]="picker" />
+      <mat-datepicker #picker />
+      @if (form.controls.deadline.value) {
+        <mat-hint>
+          <a (click)="clearDeadline($event)" class="clear-link">Clear</a>
+        </mat-hint>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Assignee</mat-label>
+      <mat-select formControlName="assignee">
+        <mat-option [value]="null">Unassigned</mat-option>
+        @for (member of members; track member.id) {
+          <mat-option [value]="member.id">{{ member.name }} ({{ member.email }})</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  @if (isEdit()) {
+    <button mat-button color="warn" (click)="onDelete()" [disabled]="loading()">
+      Delete
+    </button>
+  }
+  <button
+    mat-flat-button
+    color="primary"
+    [disabled]="form.invalid || loading()"
+    (click)="onSave()"
+  >
+    {{ loading() ? 'Saving...' : (isEdit() ? 'Save' : 'Create') }}
+  </button>
+</mat-dialog-actions>

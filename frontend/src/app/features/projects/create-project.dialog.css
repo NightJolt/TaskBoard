@@ -1,8 +1,8 @@
 mat-dialog-content {
   display: flex;
   flex-direction: column;
+  gap: 4px;
   min-width: 360px;
-  padding-top: 16px;
 }
 
 mat-form-field {

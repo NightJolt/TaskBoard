@@ -16,7 +16,7 @@
   <div class="action-bar">
     <p class="description">{{ project()!.description || 'No description' }}</p>
     <div class="actions">
-      <button mat-flat-button color="primary">
+      <button mat-flat-button color="primary" (click)="openCreateTask()">
         <mat-icon>add</mat-icon>
         Add Task
       </button>
@@ -37,7 +37,7 @@
           (cdkDropListDropped)="onDrop($event, 'todo')"
         >
           @for (task of todoTasks(); track task.id) {
-            <div class="task-card" cdkDrag [cdkDragData]="task"
+            <div class="task-card" cdkDrag [cdkDragData]="task" (click)="onTaskClick(task)"
               [class.high]="task.priority === 'high'"
               [class.low]="task.priority === 'low'"
             >
@@ -76,7 +76,7 @@
           (cdkDropListDropped)="onDrop($event, 'in_progress')"
         >
           @for (task of inProgressTasks(); track task.id) {
-            <div class="task-card" cdkDrag [cdkDragData]="task"
+            <div class="task-card" cdkDrag [cdkDragData]="task" (click)="onTaskClick(task)"
               [class.high]="task.priority === 'high'"
               [class.low]="task.priority === 'low'"
             >
@@ -115,7 +115,7 @@
           (cdkDropListDropped)="onDrop($event, 'done')"
         >
           @for (task of doneTasks(); track task.id) {
-            <div class="task-card" cdkDrag [cdkDragData]="task"
+            <div class="task-card" cdkDrag [cdkDragData]="task" (click)="onTaskClick(task)"
               [class.high]="task.priority === 'high'"
               [class.low]="task.priority === 'low'"
             >

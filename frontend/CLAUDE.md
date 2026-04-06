@@ -29,23 +29,32 @@ Use `inject()` function instead of constructor injection — required when using
 - All reactive state must use signals (never boolean properties for `loading`, `hidePassword`, etc.)
 - Services must be private — expose typed computed properties or methods to templates, never raw service access
 - Never use `::ng-deep` — it's deprecated
+- Dialog label clipping fix is global in `styles.css` (`.mat-mdc-dialog-content` overflow/padding)
+- Datepickers: use standard Material datepicker, keep it simple — no `touchUi`, no custom wrappers
+- Priority colors: red = high, orange = medium, green = low
 
 ## Structure
 ```
 src/app/
 ├── core/
 │   ├── environment.ts        # API URL config
-│   ├── auth.service.ts       # Login, register, token management (signals)
+│   ├── auth.service.ts       # Login, register, token + user in localStorage
 │   ├── auth.interceptor.ts   # Functional HTTP interceptor (JWT)
-│   └── auth.guard.ts         # authGuard + guestGuard (functional)
+│   ├── auth.guard.ts         # authGuard + guestGuard (functional)
+│   ├── projects.service.ts   # Project CRUD + member management
+│   └── tasks.service.ts      # Task CRUD
 ├── features/
 │   ├── auth/
-│   │   ├── login.component.ts
-│   │   └── register.component.ts
+│   │   ├── auth.styles.css          # Shared auth styles
+│   │   ├── login.component.*
+│   │   └── register.component.*
 │   ├── dashboard/
-│   │   └── dashboard.component.ts  # Placeholder
-│   ├── projects/              # TBD
-│   └── tasks/                 # TBD
+│   │   └── dashboard.component.*    # Project list with owner badges
+│   ├── projects/
+│   │   ├── project-detail.component.*  # Kanban + sidebar layout
+│   │   ├── create-project.dialog.*     # Create project dialog
+│   │   └── task.dialog.*               # Create/edit task dialog
+│   └── tasks/                          # TBD
 ├── app.component.ts           # Just <router-outlet />
 ├── app.config.ts              # Providers: router, httpClient, animations
 └── app.routes.ts              # Lazy-loaded routes with guards
