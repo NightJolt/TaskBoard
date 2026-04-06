@@ -9,6 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../core/auth.service';
 import { ProjectsService, Project } from '../../core/projects.service';
 import { CreateProjectDialog } from '../projects/create-project.dialog';
+import { EditProjectDialog } from '../projects/edit-project.dialog';
 
 @Component({
   selector: 'app-dashboard',
@@ -55,6 +56,25 @@ export class DashboardComponent implements OnInit {
       if (result) {
         this.loadProjects();
       }
+    });
+  }
+
+  onEditProject(event: Event, project: Project) {
+    event.stopPropagation();
+    this.dialog
+      .open(EditProjectDialog, { data: project })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) this.loadProjects();
+      });
+  }
+
+  onDeleteProject(event: Event, project: Project) {
+    event.stopPropagation();
+    if (!confirm(`Delete "${project.name}"? This cannot be undone.`)) return;
+
+    this.projectsService.delete(project.id).subscribe({
+      next: () => this.loadProjects(),
     });
   }
 

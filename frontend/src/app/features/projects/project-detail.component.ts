@@ -124,6 +124,7 @@ export class ProjectDetailComponent implements OnInit {
     });
   }
 
+
   private openTaskDialog(task?: Task) {
     const data: TaskDialogData = {
       projectId: this.projectId,

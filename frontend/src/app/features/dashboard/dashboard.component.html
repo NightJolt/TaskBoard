@@ -48,6 +48,16 @@
               </span>
             </div>
           </mat-card-content>
+          @if (isOwner(project)) {
+            <mat-card-actions class="card-actions">
+              <button mat-icon-button (click)="onEditProject($event, project)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button (click)="onDeleteProject($event, project)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </mat-card-actions>
+          }
         </mat-card>
       }
     </div>
