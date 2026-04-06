@@ -4,8 +4,8 @@ import { DatePipe } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CdkDropList, CdkDrag, CdkDropListGroup, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { AuthService } from '../../core/auth.service';
 import { ProjectsService, Project } from '../../core/projects.service';
 import { TasksService, Task } from '../../core/tasks.service';
@@ -18,8 +18,10 @@ import { TasksService, Task } from '../../core/tasks.service';
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
-    MatDividerModule,
     MatProgressSpinnerModule,
+    CdkDropListGroup,
+    CdkDropList,
+    CdkDrag,
   ],
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.css',
@@ -69,6 +71,29 @@ export class ProjectDetailComponent implements OnInit {
 
   onLogout() {
     this.authService.logout();
+  }
+
+  onDrop(event: CdkDragDrop<Task[]>, newStatus: string) {
+    const task: Task = event.item.data;
+    if (task.status === newStatus) return;
+
+    // Optimistic update
+    this.tasks.update((tasks) =>
+      tasks.map((t) => (t.id === task.id ? { ...t, status: newStatus } : t)),
+    );
+
+    this.tasksService
+      .update(this.projectId, task.id, { status: newStatus })
+      .subscribe({
+        error: () => {
+          // Revert on failure
+          this.tasks.update((tasks) =>
+            tasks.map((t) =>
+              t.id === task.id ? { ...t, status: task.status } : t,
+            ),
+          );
+        },
+      });
   }
 
   onInviteMember() {

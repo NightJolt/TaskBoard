@@ -24,15 +24,23 @@
   </div>
 
   <div class="main-layout">
-    <div class="kanban-area">
+    <div class="kanban-area" cdkDropListGroup>
       <div class="kanban-column">
         <div class="column-header todo">
           <span>Todo</span>
           <span class="count">{{ todoTasks().length }}</span>
         </div>
-        <div class="column-body">
+        <div
+          class="column-body"
+          cdkDropList
+          [cdkDropListData]="todoTasks()"
+          (cdkDropListDropped)="onDrop($event, 'todo')"
+        >
           @for (task of todoTasks(); track task.id) {
-            <div class="task-card" [class.high]="task.priority === 'high'" [class.low]="task.priority === 'low'">
+            <div class="task-card" cdkDrag [cdkDragData]="task"
+              [class.high]="task.priority === 'high'"
+              [class.low]="task.priority === 'low'"
+            >
               <div class="task-title">{{ task.title }}</div>
               <div class="task-meta">
                 @if (task.assignee) {
@@ -61,9 +69,17 @@
           <span>In Progress</span>
           <span class="count">{{ inProgressTasks().length }}</span>
         </div>
-        <div class="column-body">
+        <div
+          class="column-body"
+          cdkDropList
+          [cdkDropListData]="inProgressTasks()"
+          (cdkDropListDropped)="onDrop($event, 'in_progress')"
+        >
           @for (task of inProgressTasks(); track task.id) {
-            <div class="task-card" [class.high]="task.priority === 'high'" [class.low]="task.priority === 'low'">
+            <div class="task-card" cdkDrag [cdkDragData]="task"
+              [class.high]="task.priority === 'high'"
+              [class.low]="task.priority === 'low'"
+            >
               <div class="task-title">{{ task.title }}</div>
               <div class="task-meta">
                 @if (task.assignee) {
@@ -92,9 +108,17 @@
           <span>Done</span>
           <span class="count">{{ doneTasks().length }}</span>
         </div>
-        <div class="column-body">
+        <div
+          class="column-body"
+          cdkDropList
+          [cdkDropListData]="doneTasks()"
+          (cdkDropListDropped)="onDrop($event, 'done')"
+        >
           @for (task of doneTasks(); track task.id) {
-            <div class="task-card" [class.high]="task.priority === 'high'" [class.low]="task.priority === 'low'">
+            <div class="task-card" cdkDrag [cdkDragData]="task"
+              [class.high]="task.priority === 'high'"
+              [class.low]="task.priority === 'low'"
+            >
               <div class="task-title">{{ task.title }}</div>
               <div class="task-meta">
                 @if (task.assignee) {

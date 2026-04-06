@@ -157,6 +157,24 @@
   height: 14px;
 }
 
+/* Drag and Drop */
+.cdk-drag-preview {
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+}
+
+.cdk-drag-animating {
+  transition: transform 200ms ease;
+}
+
+.column-body.cdk-drop-list-dragging .task-card:not(.cdk-drag-placeholder) {
+  transition: transform 200ms ease;
+}
+
 .empty-column {
   text-align: center;
   padding: 24px;
