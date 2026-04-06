@@ -21,7 +21,7 @@ export class ProjectsOwnerService {
 
   async delete(project: ProjectDocument) {
     await project.deleteOne();
-    await this.projectMemberModel.deleteMany({ project: project.id });
+    await this.projectMemberModel.deleteMany({ project: project._id });
   }
 
   async addMember(project: ProjectDocument, email: string) {
@@ -29,14 +29,14 @@ export class ProjectsOwnerService {
     if (!user) throw new NotFoundException('User not found');
 
     const existing = await this.projectMemberModel.findOne({
-      project: project.id,
-      user: user.id,
+      project: project._id,
+      user: user._id,
     });
     if (existing) throw new BadRequestException('User is already a member');
 
     await this.projectMemberModel.create({
-      project: project.id,
-      user: user.id,
+      project: project._id,
+      user: user._id,
       role: ProjectRole.Member,
     });
 
@@ -49,8 +49,8 @@ export class ProjectsOwnerService {
     }
 
     const membership = await this.projectMemberModel.findOne({
-      project: project.id,
-      user: userId,
+      project: project._id,
+      user: new Types.ObjectId(userId),
     });
     if (!membership) throw new NotFoundException('Member not found');
     if (membership.role === ProjectRole.Owner) {

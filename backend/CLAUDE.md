@@ -74,7 +74,8 @@ Use `UserModel` instead of `Model<UserDocument>` when injecting. Use `import typ
 
 ### Service method signatures
 - Pass full document (e.g. `UserDocument`, `ProjectDocument`) instead of just IDs
-- Use `user.id` (Mongoose virtual) instead of `user._id.toString()`
+- Use `._id` (ObjectId) for database queries and `create()` calls — Mongoose does NOT auto-cast strings to ObjectIds
+- Use `.id` (string) only for string comparisons and response data
 - Use proper types — never `any`
 
 ### Swagger

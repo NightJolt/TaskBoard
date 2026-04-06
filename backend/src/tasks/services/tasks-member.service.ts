@@ -28,7 +28,7 @@ export class TasksMemberService {
     dto: CreateTaskReq,
   ): Promise<TaskRes> {
     if (dto.assignee) {
-      await this.validateAssignee(project.id, dto.assignee);
+      await this.validateAssignee(project._id, dto.assignee);
     }
 
     const task = await this.taskModel.create({
@@ -36,9 +36,9 @@ export class TasksMemberService {
       status: dto.status,
       deadline: dto.deadline ?? null,
       priority: dto.priority,
-      assignee: dto.assignee ?? null,
-      project: project.id,
-      createdBy: user.id,
+      assignee: dto.assignee ? new Types.ObjectId(dto.assignee) : null,
+      project: project._id,
+      createdBy: user._id,
     });
 
     return this.toResponse(task);
@@ -46,7 +46,7 @@ export class TasksMemberService {
 
   async list(project: ProjectDocument): Promise<TaskRes[]> {
     const tasks = await this.taskModel
-      .find({ project: project.id })
+      .find({ project: project._id })
       .populate('assignee', 'email name')
       .populate('createdBy', 'email name')
       .sort({ createdAt: -1 })
@@ -59,7 +59,7 @@ export class TasksMemberService {
     project: ProjectDocument,
     taskId: string,
   ): Promise<TaskRes> {
-    const task = await this.findTask(project.id, taskId);
+    const task = await this.findTask(project._id, taskId);
 
     const populated = await task.populate([
       { path: 'assignee', select: 'email name' },
@@ -74,11 +74,11 @@ export class TasksMemberService {
     taskId: string,
     dto: UpdateTaskReq,
   ): Promise<TaskRes> {
-    const task = await this.findTask(project.id, taskId);
+    const task = await this.findTask(project._id, taskId);
 
     if (dto.assignee !== undefined) {
       if (dto.assignee !== null) {
-        await this.validateAssignee(project.id, dto.assignee);
+        await this.validateAssignee(project._id, dto.assignee);
       }
       task.assignee = dto.assignee ? new Types.ObjectId(dto.assignee) : null;
     }
@@ -99,11 +99,11 @@ export class TasksMemberService {
   }
 
   async delete(project: ProjectDocument, taskId: string): Promise<void> {
-    const task = await this.findTask(project.id, taskId);
+    const task = await this.findTask(project._id, taskId);
     await task.deleteOne();
   }
 
-  private async findTask(projectId: string, taskId: string) {
+  private async findTask(projectId: Types.ObjectId, taskId: string) {
     if (!Types.ObjectId.isValid(taskId)) {
       throw new BadRequestException('Invalid task ID');
     }
@@ -117,14 +117,14 @@ export class TasksMemberService {
     return task;
   }
 
-  private async validateAssignee(projectId: string, userId: string) {
+  private async validateAssignee(projectId: Types.ObjectId, userId: string) {
     if (!Types.ObjectId.isValid(userId)) {
       throw new BadRequestException('Invalid assignee ID');
     }
 
     const membership = await this.projectMemberModel.findOne({
       project: projectId,
-      user: userId,
+      user: new Types.ObjectId(userId),
     });
 
     if (!membership) {

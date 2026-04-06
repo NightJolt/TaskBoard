@@ -37,8 +37,8 @@ export class ProjectMembershipGuard implements CanActivate {
     }
 
     const membership = await this.projectMemberModel.findOne({
-      project: projectId,
-      user: userId,
+      project: project._id,
+      user: request.user._id,
     });
 
     if (!membership) {

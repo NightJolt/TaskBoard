@@ -20,12 +20,12 @@ export class ProjectsAuthedService {
     const project = await this.projectModel.create({
       name: dto.name,
       description: dto.description ?? '',
-      owner: user.id,
+      owner: user._id,
     });
 
     await this.projectMemberModel.create({
-      project: project.id,
-      user: user.id,
+      project: project._id,
+      user: user._id,
       role: ProjectRole.Owner,
     });
 
@@ -34,7 +34,7 @@ export class ProjectsAuthedService {
 
   async listMyProjects(user: UserDocument) {
     const memberships = await this.projectMemberModel
-      .find({ user: user.id })
+      .find({ user: user._id })
       .select('project');
 
     const projectIds = memberships.map((m) => m.project);
@@ -63,7 +63,7 @@ export class ProjectsAuthedService {
 
   async getDetail(project: ProjectDocument) {
     const members = await this.projectMemberModel
-      .find({ project: project.id })
+      .find({ project: project._id })
       .populate('user', 'email name')
       .lean();
 
