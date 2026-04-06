@@ -40,7 +40,8 @@ src/app/
 │   ├── environment.ts        # API URL config
 │   ├── auth.service.ts       # Login, register, token + user in localStorage
 │   ├── auth.interceptor.ts   # Functional HTTP interceptor (JWT)
-│   ├── auth.guard.ts         # authGuard + guestGuard (functional)
+│   ├── auth.guard.ts         # authGuard + adminGuard + guestGuard (functional)
+│   ├── admin.service.ts      # Invite codes + user list (admin only)
 │   ├── projects.service.ts   # Project CRUD + member management
 │   └── tasks.service.ts      # Task CRUD
 ├── features/
@@ -53,7 +54,11 @@ src/app/
 │   ├── projects/
 │   │   ├── project-detail.component.*  # Kanban + sidebar layout
 │   │   ├── create-project.dialog.*     # Create project dialog
+│   │   ├── edit-project.dialog.*       # Edit project dialog
+│   │   ├── add-member.dialog.*         # Add member dialog
 │   │   └── task.dialog.*               # Create/edit task dialog
+│   ├── admin/
+│   │   └── admin.component.*           # Invite codes + user list (tabs)
 │   └── tasks/                          # TBD
 ├── app.component.ts           # Just <router-outlet />
 ├── app.config.ts              # Providers: router, httpClient, animations

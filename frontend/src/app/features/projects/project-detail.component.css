@@ -223,16 +223,16 @@
 }
 
 .remove-member {
-  width: 24px !important;
-  height: 24px !important;
-  line-height: 24px !important;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
 }
 
 .remove-member mat-icon {
-  font-size: 16px !important;
-  width: 16px !important;
-  height: 16px !important;
-  color: #999;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #ccc;
 }
 
 .remove-member:hover mat-icon {

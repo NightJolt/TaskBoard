@@ -7,7 +7,7 @@ Title, Status (Todo / In Progress / Done), Deadline, Priority
 
 ## Structure
 - `backend/` — NestJS modular monolith (see `backend/CLAUDE.md`)
-- `frontend/` — Angular (TBD)
+- `frontend/` — Angular 19 + Angular Material (see `frontend/CLAUDE.md`)
 
 ## Git Conventions
 - One logical change per commit

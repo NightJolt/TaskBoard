@@ -156,9 +156,9 @@
             @if (member.role === 'owner') {
               <mat-icon class="owner-star">star</mat-icon>
             } @else if (isOwner()) {
-              <button mat-icon-button class="remove-member" (click)="onRemoveMember(member.id)">
+              <span class="remove-member" (click)="onRemoveMember(member.id)">
                 <mat-icon>close</mat-icon>
-              </button>
+              </span>
             }
           </div>
         }

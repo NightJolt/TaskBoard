@@ -107,6 +107,7 @@ Entire stack ships with Docker.
 2. ~~Projects~~ ✅
 3. ~~Tasks~~ ✅
 4. Backend: search → notifications → gateway → redis
-3. Frontend: core/auth → projects → tasks/kanban → search → real-time → admin
-4. Dockerfiles for backend & frontend
-5. Integration testing & polish
+5. ~~Frontend: auth, dashboard, kanban, task CRUD, member mgmt, admin panel~~ ✅
+6. Backend: RabbitMQ → Elasticsearch → Redis → WebSockets
+7. Dockerfiles for backend & frontend
+8. Integration testing & polish

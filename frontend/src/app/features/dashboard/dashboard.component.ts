@@ -1,5 +1,5 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -15,6 +15,7 @@ import { EditProjectDialog } from '../projects/edit-project.dialog';
   selector: 'app-dashboard',
   standalone: true,
   imports: [
+    RouterLink,
     MatToolbarModule,
     MatButtonModule,
     MatCardModule,
@@ -34,6 +35,7 @@ export class DashboardComponent implements OnInit {
   projects = signal<Project[]>([]);
   loading = signal(true);
   userName = computed(() => this.authService.user()?.name ?? '');
+  isAdmin = computed(() => this.authService.user()?.role === 'admin');
 
   private userId = computed(() => this.authService.user()?.id);
 
