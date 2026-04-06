@@ -65,17 +65,22 @@ export class TaskDialog {
     this.loading.set(true);
 
     const raw = this.form.getRawValue();
-    const payload = {
-      title: raw.title,
-      status: raw.status,
-      priority: raw.priority,
-      deadline: raw.deadline ? raw.deadline.toISOString() : undefined,
-      assignee: raw.assignee ?? undefined,
-    };
 
     const req = this.isEdit()
-      ? this.tasksService.update(this.data.projectId, this.data.task!.id, payload)
-      : this.tasksService.create(this.data.projectId, payload);
+      ? this.tasksService.update(this.data.projectId, this.data.task!.id, {
+          title: raw.title,
+          status: raw.status,
+          priority: raw.priority,
+          deadline: raw.deadline ? raw.deadline.toISOString() : null,
+          assignee: raw.assignee,
+        })
+      : this.tasksService.create(this.data.projectId, {
+          title: raw.title,
+          status: raw.status,
+          priority: raw.priority,
+          deadline: raw.deadline ? raw.deadline.toISOString() : undefined,
+          assignee: raw.assignee ?? undefined,
+        });
 
     req.subscribe({
       next: () => this.dialogRef.close(true),

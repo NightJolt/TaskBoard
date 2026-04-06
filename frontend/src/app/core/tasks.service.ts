@@ -25,7 +25,7 @@ export interface CreateTaskData {
 export interface UpdateTaskData {
   title?: string;
   status?: string;
-  deadline?: string;
+  deadline?: string | null;
   priority?: string;
   assignee?: string | null;
 }

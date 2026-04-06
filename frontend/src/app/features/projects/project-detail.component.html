@@ -155,14 +155,18 @@
             <span class="member-name">{{ member.name }}</span>
             @if (member.role === 'owner') {
               <mat-icon class="owner-star">star</mat-icon>
+            } @else if (isOwner()) {
+              <button mat-icon-button class="remove-member" (click)="onRemoveMember(member.id)">
+                <mat-icon>close</mat-icon>
+              </button>
             }
           </div>
         }
       </div>
       @if (isOwner()) {
-        <button mat-stroked-button class="invite-btn" (click)="onInviteMember()">
+        <button mat-stroked-button class="add-member-btn" (click)="onAddMember()">
           <mat-icon>person_add</mat-icon>
-          Invite Member
+          Add Member
         </button>
       }
     </div>

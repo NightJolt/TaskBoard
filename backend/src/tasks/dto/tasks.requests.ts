@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsString,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 import { TaskPriority, TaskStatus } from '../schemas/task.schema';
 
@@ -40,14 +41,16 @@ export class UpdateTaskReq {
   @IsOptional()
   status?: TaskStatus;
 
+  @ValidateIf((o) => o.deadline !== null)
   @IsDateString()
   @IsOptional()
-  deadline?: string;
+  deadline?: string | null;
 
   @IsEnum(TaskPriority)
   @IsOptional()
   priority?: TaskPriority;
 
+  @ValidateIf((o) => o.assignee !== null)
   @IsMongoId()
   @IsOptional()
   assignee?: string | null;

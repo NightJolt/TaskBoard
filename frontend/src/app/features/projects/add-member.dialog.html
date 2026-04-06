@@ -1,0 +1,24 @@
+<h2 mat-dialog-title>Add Member</h2>
+<mat-dialog-content>
+  <p>Enter the email of a registered user to add them to this project.</p>
+  <mat-form-field appearance="outline">
+    <mat-label>Email</mat-label>
+    <input matInput type="email" [formControl]="emailControl" />
+    @if (emailControl.hasError('required')) {
+      <mat-error>Email is required</mat-error>
+    } @else if (emailControl.hasError('email')) {
+      <mat-error>Invalid email</mat-error>
+    }
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button
+    mat-flat-button
+    color="primary"
+    [disabled]="emailControl.invalid || loading()"
+    (click)="onAdd()"
+  >
+    {{ loading() ? 'Adding...' : 'Add' }}
+  </button>
+</mat-dialog-actions>

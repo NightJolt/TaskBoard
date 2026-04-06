@@ -11,6 +11,7 @@ import { AuthService } from '../../core/auth.service';
 import { ProjectsService, Project } from '../../core/projects.service';
 import { TasksService, Task } from '../../core/tasks.service';
 import { TaskDialog, TaskDialogData } from './task.dialog';
+import { AddMemberDialog } from './add-member.dialog';
 
 @Component({
   selector: 'app-project-detail',
@@ -108,8 +109,19 @@ export class ProjectDetailComponent implements OnInit {
     this.openTaskDialog(task);
   }
 
-  onInviteMember() {
-    // TODO: open invite dialog
+  onAddMember() {
+    this.dialog
+      .open(AddMemberDialog, { data: this.projectId })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) this.loadData();
+      });
+  }
+
+  onRemoveMember(memberId: string) {
+    this.projectsService.removeMember(this.projectId, memberId).subscribe({
+      next: () => this.loadData(),
+    });
   }
 
   private openTaskDialog(task?: Task) {
