@@ -73,10 +73,12 @@ Task management platform. Admin invites users via invite codes. Users create pro
 - Real-time events: task created/updated/deleted, notifications
 - Room-based: users subscribe to project rooms
 
-### 8. Redis (deferred)
-- JWT token blacklisting (logout)
-- Refresh token rotation
-- Caching, rate limiting
+### 8. Redis ✅ (partial)
+- JWT token blacklisting (logout) ✅
+- Global RedisModule with ioredis
+- TokenBlacklistService + JTI in JWT payload
+- Refresh token rotation (TBD)
+- Caching, rate limiting (TBD)
 
 ## Frontend Structure
 
@@ -106,8 +108,8 @@ Entire stack ships with Docker.
 1. ~~Docker Compose + Config + Auth + Users~~ ✅
 2. ~~Projects~~ ✅
 3. ~~Tasks~~ ✅
-4. Backend: search → notifications → gateway → redis
+4. ~~Redis (JWT blacklisting / logout)~~ ✅
 5. ~~Frontend: auth, dashboard, kanban, task CRUD, member mgmt, admin panel~~ ✅
-6. Backend: RabbitMQ → Elasticsearch → Redis → WebSockets
+6. Backend: RabbitMQ → Elasticsearch → WebSockets
 7. Dockerfiles for backend & frontend
 8. Integration testing & polish

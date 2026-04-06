@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ProjectsModule } from './projects/projects.module';
 import { TasksModule } from './tasks/tasks.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -22,6 +23,8 @@ import { TasksModule } from './tasks/tasks.module';
         JWT_ACCESS_EXPIRATION: Joi.string().default('15m'),
         ADMIN_SEED_EMAIL: Joi.string().required(),
         ADMIN_SEED_PASSWORD: Joi.string().required().min(8),
+        REDIS_HOST: Joi.string().default('localhost'),
+        REDIS_PORT: Joi.number().default(6379),
       }),
     }),
     MongooseModule.forRootAsync({
@@ -30,6 +33,7 @@ import { TasksModule } from './tasks/tasks.module';
       }),
       inject: [ConfigService],
     }),
+    RedisModule,
     UsersModule,
     AuthModule,
     ProjectsModule,

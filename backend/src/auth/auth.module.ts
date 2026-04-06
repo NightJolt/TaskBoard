@@ -8,6 +8,7 @@ import { ProjectsModule } from '../projects/projects.module';
 import { AuthSystemService } from './services/auth-system.service';
 import { AuthPublicService } from './services/auth-public.service';
 import { AuthAdminService } from './services/auth-admin.service';
+import { TokenBlacklistService } from './services/token-blacklist.service';
 import { AuthPublicController } from './controllers/auth-public.controller';
 import { AuthAuthedController } from './controllers/auth-authed.controller';
 import { AuthAdminController } from './controllers/auth-admin.controller';
@@ -30,7 +31,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
       inject: [ConfigService],
     }),
   ],
-  providers: [AuthSystemService, AuthPublicService, AuthAdminService, JwtStrategy],
+  providers: [AuthSystemService, AuthPublicService, AuthAdminService, TokenBlacklistService, JwtStrategy],
   controllers: [AuthPublicController, AuthAuthedController, AuthAdminController],
   exports: [AuthSystemService],
 })

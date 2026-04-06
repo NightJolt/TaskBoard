@@ -6,7 +6,7 @@ Modular monolith built with NestJS 11.
 ## Tech Stack & Roles
 - **NestJS** — REST API framework
 - **MongoDB** (Mongoose) — primary data store for users, projects, tasks
-- **Redis** — JWT token blacklisting (logout), caching, rate limiting (deferred)
+- **Redis** (ioredis) — JWT token blacklisting (logout). Global `RedisModule` provides `REDIS_CLIENT` via `@Inject(REDIS_CLIENT)`
 - **Elasticsearch** — full-text search across tasks (synced from MongoDB via RabbitMQ events)
 - **RabbitMQ** — async event bus for decoupling modules (task assignment notifications, search index sync, activity logging)
 
@@ -103,7 +103,7 @@ src/
 │   ├── strategies/          # jwt.strategy.ts
 │   ├── interfaces/          # jwt-payload.interface.ts
 │   ├── dto/                 # auth.requests.ts, auth.responses.ts
-│   ├── services/            # auth-system, auth-public, auth-admin
+│   ├── services/            # auth-system, auth-public, auth-admin, token-blacklist
 │   ├── controllers/         # auth-public, auth-authed, auth-admin
 │   └── auth.module.ts
 ├── projects/
@@ -119,6 +119,8 @@ src/
 │   ├── services/            # tasks-member
 │   ├── controllers/         # tasks-member
 │   └── tasks.module.ts
+├── redis/
+│   └── redis.module.ts      # Global Redis provider (REDIS_CLIENT)
 ├── search/                  # TBD
 ├── notifications/           # TBD
 ├── app.module.ts
@@ -133,10 +135,11 @@ src/
 - **ProjectMember** — project (ref Project), user (ref User), role (owner/member). Separate collection for scalability. Compound unique index on (project, user).
 
 ## Auth & Invite Flow
-- JWT-based authentication (access token only, refresh deferred)
+- JWT-based authentication with JTI (unique token ID per token)
 - Admin seeded from env vars on first boot
 - Admin generates invite codes, users register with invite code
-- Token blacklisting via Redis (deferred)
+- Logout blacklists token JTI in Redis with TTL matching remaining token lifetime
+- JWT strategy checks blacklist on every authenticated request
 
 ## Real-time
 WebSockets via NestJS Gateway (Socket.io) for live task/project updates (TBD).
