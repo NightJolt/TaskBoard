@@ -22,9 +22,13 @@ Use `inject()` function instead of constructor injection — required when using
 - `AuthService` uses signals: `token()`, `user()`, `isAuthenticated()`
 
 ### Components
-- Standalone components with inline template + styles
+- Always use separate `.html` and `.css` files — never inline templates or styles
+- Share common styles via shared stylesheet (e.g. `auth.styles.css`)
 - Angular Material for all UI elements
 - `MatSnackBar` for error feedback
+- All reactive state must use signals (never boolean properties for `loading`, `hidePassword`, etc.)
+- Services must be private — expose typed computed properties or methods to templates, never raw service access
+- Never use `::ng-deep` — it's deprecated
 
 ## Structure
 ```

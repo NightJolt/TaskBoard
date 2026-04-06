@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -18,49 +18,8 @@ import { ProjectsService } from '../../core/projects.service';
     MatButtonModule,
     MatSnackBarModule,
   ],
-  template: `
-    <h2 mat-dialog-title>New Project</h2>
-    <mat-dialog-content>
-      <form [formGroup]="form">
-        <mat-form-field appearance="outline">
-          <mat-label>Project Name</mat-label>
-          <input matInput formControlName="name" />
-          @if (form.controls.name.hasError('required')) {
-            <mat-error>Name is required</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Description</mat-label>
-          <textarea matInput formControlName="description" rows="3"></textarea>
-        </mat-form-field>
-      </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Cancel</button>
-      <button
-        mat-flat-button
-        color="primary"
-        [disabled]="form.invalid || loading"
-        (click)="onCreate()"
-      >
-        {{ loading ? 'Creating...' : 'Create' }}
-      </button>
-    </mat-dialog-actions>
-  `,
-  styles: `
-    :host ::ng-deep .mat-mdc-dialog-content {
-      display: flex;
-      flex-direction: column;
-      min-width: 360px;
-      padding-top: 24px !important;
-      overflow: visible;
-    }
-
-    mat-form-field {
-      width: 100%;
-    }
-  `,
+  templateUrl: './create-project.dialog.html',
+  styleUrl: './create-project.dialog.css',
 })
 export class CreateProjectDialog {
   private fb = inject(FormBuilder);
@@ -68,7 +27,7 @@ export class CreateProjectDialog {
   private dialogRef = inject(MatDialogRef<CreateProjectDialog>);
   private snackBar = inject(MatSnackBar);
 
-  loading = false;
+  loading = signal(false);
 
   form = this.fb.nonNullable.group({
     name: ['', Validators.required],
@@ -78,13 +37,13 @@ export class CreateProjectDialog {
   onCreate() {
     if (this.form.invalid) return;
 
-    this.loading = true;
+    this.loading.set(true);
     const { name, description } = this.form.getRawValue();
 
     this.projectsService.create({ name, description }).subscribe({
       next: (project) => this.dialogRef.close(project),
       error: (err) => {
-        this.loading = false;
+        this.loading.set(false);
         this.snackBar.open(
           err.error?.message || 'Failed to create project',
           'Close',
