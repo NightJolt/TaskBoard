@@ -9,6 +9,32 @@ export class AuthRes {
 }
 
 @Exclude()
+export class AdminProjectRes {
+  @Expose()
+  @Transform(({ obj }) => obj._id?.toString() ?? obj.id)
+  id: string;
+
+  @Expose()
+  name: string;
+
+  @Expose()
+  description: string;
+
+  @Expose()
+  @Type(() => UserRes)
+  owner: UserRes;
+
+  @Expose()
+  memberCount: number;
+
+  @Expose()
+  isMember: boolean;
+
+  @Expose()
+  createdAt: Date;
+}
+
+@Exclude()
 export class InviteCodeRes {
   @Expose()
   @Transform(({ obj }) => obj._id?.toString())
