@@ -35,7 +35,7 @@ export class AddMemberDialog {
 
     this.loading.set(true);
     this.projectsService.addMember(this.projectId, this.emailControl.value!).subscribe({
-      next: () => this.dialogRef.close(true),
+      next: (project) => this.dialogRef.close(project),
       error: (err) => {
         this.loading.set(false);
         this.snackBar.open(

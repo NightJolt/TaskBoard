@@ -86,6 +86,17 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
       this.socketService.taskDeleted$.subscribe((taskId) =>
         this.tasks.update((tasks) => tasks.filter((t) => t.id !== taskId)),
       ),
+      this.socketService.memberAdded$.subscribe((project) =>
+        this.project.set(project),
+      ),
+      this.socketService.memberRemoved$.subscribe((userId) => {
+        this.project.update((p) =>
+          p ? { ...p, members: p.members.filter((m) => m.id !== userId) } : p,
+        );
+        this.tasks.update((tasks) =>
+          tasks.map((t) => t.assignee?.id === userId ? { ...t, assignee: null } : t),
+        );
+      }),
     );
   }
 
@@ -137,14 +148,14 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     this.dialog
       .open(AddMemberDialog, { data: this.projectId })
       .afterClosed()
-      .subscribe((result) => {
-        if (result) this.loadData();
+      .subscribe((project) => {
+        if (project) this.project.set(project);
       });
   }
 
   onRemoveMember(memberId: string) {
     this.projectsService.removeMember(this.projectId, memberId).subscribe({
-      next: () => this.loadData(),
+      next: (project) => this.project.set(project),
     });
   }
 

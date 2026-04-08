@@ -10,12 +10,14 @@ import { ProjectMember, ProjectRole } from '../schemas/project-member.schema';
 import type { ProjectMemberModel } from '../schemas/project-member.schema';
 import type { ProjectDocument } from '../schemas/project.schema';
 import { ProjectsAuthedService } from './projects-authed.service';
+import { EventsService } from '../../events/events.service';
 
 @Injectable()
 export class ProjectsOwnerService {
   constructor(
     private usersService: UsersService,
     private projectsAuthedService: ProjectsAuthedService,
+    private eventsService: EventsService,
     @InjectModel(ProjectMember.name) private projectMemberModel: ProjectMemberModel,
   ) {}
 
@@ -40,7 +42,15 @@ export class ProjectsOwnerService {
       role: ProjectRole.Member,
     });
 
-    return this.projectsAuthedService.getDetail(project);
+    const detail = await this.projectsAuthedService.getDetail(project);
+
+    await this.eventsService.publish({
+      type: 'member.added',
+      projectId: project.id,
+      data: { project: detail },
+    });
+
+    return detail;
   }
 
   async removeMember(project: ProjectDocument, userId: string) {
@@ -58,6 +68,13 @@ export class ProjectsOwnerService {
     }
 
     await membership.deleteOne();
+
+    await this.eventsService.publish({
+      type: 'member.removed',
+      projectId: project.id,
+      data: { userId },
+    });
+
     return this.projectsAuthedService.getDetail(project);
   }
 }
