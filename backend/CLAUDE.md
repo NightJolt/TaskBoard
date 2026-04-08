@@ -121,8 +121,10 @@ src/
 │   └── tasks.module.ts
 ├── redis/
 │   └── redis.module.ts      # Global Redis provider (REDIS_CLIENT)
-├── search/                  # TBD
-├── notifications/           # TBD
+├── events/
+│   ├── events.service.ts    # Redis Pub/Sub publisher
+│   ├── events.gateway.ts    # Socket.io gateway, subscribes to Redis
+│   └── events.module.ts     # Global module
 ├── app.module.ts
 └── main.ts
 ```
@@ -141,11 +143,13 @@ src/
 - Logout blacklists token JTI in Redis with TTL matching remaining token lifetime
 - JWT strategy checks blacklist on every authenticated request
 
-## Real-time
-WebSockets via NestJS Gateway (Socket.io) for live task/project updates (TBD).
-
-## Event Flow (RabbitMQ)
-Producer → publishes event → Consumers handle async (TBD).
+## Real-time (Redis Pub/Sub + WebSockets)
+- **EventsService** — publishes `AppEvent` to Redis channel `app_events`
+- **EventsGateway** — Socket.io gateway, subscribes to Redis, pushes to project rooms
+- Clients join/leave rooms via `joinProject`/`leaveProject` socket messages
+- Events: `task.created` (full task), `task.updated` (full task), `task.deleted` (taskId)
+- Frontend updates local signal state directly — no refetching
+- Global `EventsModule` — any service can inject `EventsService` to publish
 
 ## Git Conventions
 - Clear, focused commits — one logical change per commit

@@ -43,7 +43,8 @@ src/app/
 │   ├── auth.guard.ts         # authGuard + adminGuard + guestGuard (functional)
 │   ├── admin.service.ts      # Invite codes + user list (admin only)
 │   ├── projects.service.ts   # Project CRUD + member management
-│   └── tasks.service.ts      # Task CRUD
+│   ├── tasks.service.ts      # Task CRUD
+│   └── socket.service.ts     # Socket.io client, project rooms, task event subjects
 ├── features/
 │   ├── auth/
 │   │   ├── auth.styles.css          # Shared auth styles
@@ -74,4 +75,4 @@ src/app/
 - UI library: Angular Material
 - State management: Services + Angular signals
 - Task board: Kanban (drag-and-drop columns: Todo / In Progress / Done)
-- Real-time: WebSockets via Socket.io for live updates (TBD)
+- Real-time: Socket.io client receives granular task events (created/updated/deleted), updates local signals directly — no refetching

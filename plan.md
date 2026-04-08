@@ -102,7 +102,7 @@ Entire stack ships with Docker.
 - `docker-compose.yml` at project root — single `docker-compose up` runs everything
 - `backend/Dockerfile` — NestJS app container
 - `frontend/Dockerfile` — Angular app (build + nginx serve)
-- Service containers: MongoDB, Redis, Elasticsearch, RabbitMQ
+- Service containers: MongoDB, Redis
 
 ## Build Order
 1. ~~Docker Compose + Config + Auth + Users~~ ✅
@@ -110,6 +110,6 @@ Entire stack ships with Docker.
 3. ~~Tasks~~ ✅
 4. ~~Redis (JWT blacklisting / logout)~~ ✅
 5. ~~Frontend: auth, dashboard, kanban, task CRUD, member mgmt, admin panel~~ ✅
-6. Backend: RabbitMQ → Elasticsearch → WebSockets
+6. ~~Real-time: Redis Pub/Sub + Socket.io (granular task events, no refetching)~~ ✅
 7. Dockerfiles for backend & frontend
 8. Integration testing & polish
