@@ -73,12 +73,12 @@ Task management platform. Admin invites users via invite codes. Users create pro
 - Real-time events: task created/updated/deleted, notifications
 - Room-based: users subscribe to project rooms
 
-### 8. Redis ✅ (partial)
+### 8. Redis ✅
 - JWT token blacklisting (logout) ✅
+- Refresh token rotation (single-use, blacklist old on refresh) ✅
 - Global RedisModule with ioredis
 - TokenBlacklistService + JTI in JWT payload
-- Refresh token rotation (TBD)
-- Caching, rate limiting (TBD)
+- Frontend auto-refresh via interceptor on 401 ✅
 
 ## Frontend Structure
 

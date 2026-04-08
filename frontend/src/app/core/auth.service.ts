@@ -13,6 +13,7 @@ export interface User {
 
 export interface AuthResponse {
   accessToken: string;
+  refreshToken: string;
   user: User;
 }
 
@@ -20,6 +21,7 @@ export interface AuthResponse {
 export class AuthService {
   private readonly apiUrl = `${environment.apiUrl}/auth`;
   private readonly TOKEN_KEY = 'accessToken';
+  private readonly REFRESH_KEY = 'refreshToken';
   private readonly USER_KEY = 'user';
 
   readonly token = signal<string | null>(this.getStored(this.TOKEN_KEY));
@@ -54,18 +56,45 @@ export class AuthService {
 
   logout() {
     this.http.post(`${this.apiUrl}/logout`, {}).subscribe();
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.USER_KEY);
-    this.token.set(null);
-    this.user.set(null);
+    this.clearStorage();
     this.router.navigate(['/login']);
+  }
+
+  refreshTokens() {
+    const refreshToken = this.getStored(this.REFRESH_KEY);
+    if (!refreshToken) {
+      this.logout();
+      return;
+    }
+
+    return this.http
+      .post<{ accessToken: string; refreshToken: string }>(
+        `${this.apiUrl}/refresh`,
+        { refreshToken },
+      )
+      .pipe(
+        tap((res) => {
+          localStorage.setItem(this.TOKEN_KEY, res.accessToken);
+          localStorage.setItem(this.REFRESH_KEY, res.refreshToken);
+          this.token.set(res.accessToken);
+        }),
+      );
   }
 
   private handleAuth(res: AuthResponse) {
     localStorage.setItem(this.TOKEN_KEY, res.accessToken);
+    localStorage.setItem(this.REFRESH_KEY, res.refreshToken);
     localStorage.setItem(this.USER_KEY, JSON.stringify(res.user));
     this.token.set(res.accessToken);
     this.user.set(res.user);
+  }
+
+  private clearStorage() {
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.REFRESH_KEY);
+    localStorage.removeItem(this.USER_KEY);
+    this.token.set(null);
+    this.user.set(null);
   }
 
   private loadCurrentUser() {

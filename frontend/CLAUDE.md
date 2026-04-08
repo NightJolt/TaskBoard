@@ -15,10 +15,11 @@ Angular 19 with standalone components (no NgModules).
 Use `inject()` function instead of constructor injection — required when using DI in field initializers (e.g. `form = this.fb.group(...)`).
 
 ### Auth
-- JWT stored in localStorage
-- `authInterceptor` (functional) attaches Bearer token to all requests
+- Access token + refresh token stored in localStorage
+- `authInterceptor` — attaches Bearer token, auto-refreshes on 401 (catches expired access token, calls `/auth/refresh`, retries original request)
+- Skips refresh for `/auth/login`, `/auth/register`, `/auth/refresh` (prevents infinite loop)
 - `authGuard` — redirects to `/login` if not authenticated
-- `guestGuard` — redirects to `/` if already authenticated (prevents logged-in users from seeing login/register)
+- `guestGuard` — redirects to `/` if already authenticated
 - `AuthService` uses signals: `token()`, `user()`, `isAuthenticated()`
 
 ### Components
