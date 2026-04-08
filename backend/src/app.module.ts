@@ -22,6 +22,8 @@ import { EventsModule } from './events/events.module';
         MONGODB_URI: Joi.string().required(),
         JWT_ACCESS_SECRET: Joi.string().required().min(32),
         JWT_ACCESS_EXPIRATION: Joi.string().default('15m'),
+        JWT_REFRESH_SECRET: Joi.string().required().min(32),
+        JWT_REFRESH_EXPIRATION: Joi.string().default('7d'),
         ADMIN_SEED_EMAIL: Joi.string().required(),
         ADMIN_SEED_PASSWORD: Joi.string().required().min(8),
         REDIS_HOST: Joi.string().default('localhost'),

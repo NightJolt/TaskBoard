@@ -3,6 +3,7 @@ import { UserRes } from '../../users/dto/users.responses';
 
 export class AuthRes {
   accessToken: string;
+  refreshToken: string;
 
   @Type(() => UserRes)
   user: UserRes;

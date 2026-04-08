@@ -52,7 +52,7 @@ export class AuthPublicService {
     }
 
     return {
-      accessToken: this.authSystemService.generateToken(user),
+      ...this.authSystemService.generateTokens(user),
       user: this.authSystemService.sanitizeUser(user),
     };
   }
@@ -69,7 +69,7 @@ export class AuthPublicService {
     }
 
     return {
-      accessToken: this.authSystemService.generateToken(user),
+      ...this.authSystemService.generateTokens(user),
       user: this.authSystemService.sanitizeUser(user),
     };
   }

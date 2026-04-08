@@ -138,10 +138,13 @@ src/
 
 ## Auth & Invite Flow
 - JWT-based authentication with JTI (unique token ID per token)
+- Access token (15m) + refresh token (7d) pair
+- Login/register returns both tokens + user
+- `POST /api/auth/refresh` — accepts refresh token, blacklists old one (single-use), returns new pair
+- Logout blacklists access token JTI in Redis with TTL matching remaining lifetime
+- JWT strategy checks blacklist on every authenticated request
 - Admin seeded from env vars on first boot
 - Admin generates invite codes, users register with invite code
-- Logout blacklists token JTI in Redis with TTL matching remaining token lifetime
-- JWT strategy checks blacklist on every authenticated request
 
 ## Real-time (Redis Pub/Sub + WebSockets)
 - **EventsService** — publishes `AppEvent` to Redis channel `app_events`

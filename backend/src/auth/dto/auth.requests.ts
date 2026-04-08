@@ -23,3 +23,8 @@ export class RegisterReq {
   @IsString()
   inviteCode: string;
 }
+
+export class RefreshReq {
+  @IsString()
+  refreshToken: string;
+}
