@@ -14,12 +14,14 @@ import type { ProjectDocument } from '../../projects/schemas/project.schema';
 import { UserDocument } from '../../users/schemas/user.schema';
 import { CreateTaskReq, UpdateTaskReq } from '../dto/tasks.requests';
 import { TaskRes } from '../dto/tasks.responses';
+import { EventsService } from '../../events/events.service';
 
 @Injectable()
 export class TasksMemberService {
   constructor(
     @InjectModel(Task.name) private taskModel: TaskModel,
     @InjectModel(ProjectMember.name) private projectMemberModel: ProjectMemberModel,
+    private eventsService: EventsService,
   ) {}
 
   async create(
@@ -41,7 +43,19 @@ export class TasksMemberService {
       createdBy: user._id,
     });
 
-    return this.toResponse(task);
+    const populated = await task.populate([
+      { path: 'assignee', select: 'email name' },
+      { path: 'createdBy', select: 'email name' },
+    ]);
+    const response = plainToInstance(TaskRes, populated.toObject());
+
+    await this.eventsService.publish({
+      type: 'task.created',
+      projectId: project.id,
+      data: { task: response },
+    });
+
+    return response;
   }
 
   async list(project: ProjectDocument): Promise<TaskRes[]> {
@@ -95,12 +109,26 @@ export class TasksMemberService {
       { path: 'createdBy', select: 'email name' },
     ]);
 
-    return plainToInstance(TaskRes, populated.toObject());
+    const response = plainToInstance(TaskRes, populated.toObject());
+
+    await this.eventsService.publish({
+      type: 'task.updated',
+      projectId: project.id,
+      data: { task: response },
+    });
+
+    return response;
   }
 
   async delete(project: ProjectDocument, taskId: string): Promise<void> {
     const task = await this.findTask(project._id, taskId);
     await task.deleteOne();
+
+    await this.eventsService.publish({
+      type: 'task.deleted',
+      projectId: project.id,
+      data: { taskId },
+    });
   }
 
   private async findTask(projectId: Types.ObjectId, taskId: string) {

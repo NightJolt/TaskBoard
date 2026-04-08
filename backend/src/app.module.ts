@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { ProjectsModule } from './projects/projects.module';
 import { TasksModule } from './tasks/tasks.module';
 import { RedisModule } from './redis/redis.module';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { RedisModule } from './redis/redis.module';
       inject: [ConfigService],
     }),
     RedisModule,
+    EventsModule,
     UsersModule,
     AuthModule,
     ProjectsModule,
