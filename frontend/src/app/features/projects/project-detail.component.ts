@@ -52,15 +52,15 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     () => this.project()?.owner.id === this.authService.user()?.id,
   );
 
-  todoTasks = computed(() =>
-    this.tasks().filter((t) => t.status === 'todo'),
-  );
-  inProgressTasks = computed(() =>
-    this.tasks().filter((t) => t.status === 'in_progress'),
-  );
-  doneTasks = computed(() =>
-    this.tasks().filter((t) => t.status === 'done'),
-  );
+  private readonly priorityOrder: Record<string, number> = {
+    high: 0,
+    medium: 1,
+    low: 2,
+  };
+
+  todoTasks = this.tasksByStatus('todo');
+  inProgressTasks = this.tasksByStatus('in_progress');
+  doneTasks = this.tasksByStatus('done');
 
   private projectId = '';
 
@@ -177,6 +177,18 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         this.router.navigate(['/']);
       },
     });
+  }
+
+  private tasksByStatus(status: string) {
+    return computed(() => this.sortByPriority(
+      this.tasks().filter((t) => t.status === status),
+    ));
+  }
+
+  private sortByPriority(tasks: Task[]): Task[] {
+    return [...tasks].sort(
+      (a, b) => (this.priorityOrder[a.priority] ?? 1) - (this.priorityOrder[b.priority] ?? 1),
+    );
   }
 
   private loadTasks() {
