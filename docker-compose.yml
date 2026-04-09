@@ -10,5 +10,37 @@ services:
     volumes:
       - mongodb_data:/data/db
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+
+  backend:
+    build: ./backend
+    ports:
+      - '3000:3000'
+    environment:
+      PORT: 3000
+      NODE_ENV: production
+      MONGODB_URI: mongodb://taskboard:taskboard_dev@mongodb:27017/taskboard?authSource=admin
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_ACCESS_SECRET: cqvd45MVxSi4hYM2bor0rVGipnvXmzdl7oyt6um3nezp
+      JWT_ACCESS_EXPIRATION: 15m
+      JWT_REFRESH_SECRET: xK9pL2mN4qR7tU0wY3aD6fH8jB1cE5gI4kM7nP0rS2v
+      JWT_REFRESH_EXPIRATION: 7d
+      ADMIN_SEED_EMAIL: admin@taskboard.local
+      ADMIN_SEED_PASSWORD: admin123
+    depends_on:
+      - mongodb
+      - redis
+
+  frontend:
+    build: ./frontend
+    ports:
+      - '4200:80'
+    depends_on:
+      - backend
+
 volumes:
   mongodb_data:
